@@ -3,7 +3,9 @@ import pickle
 from FileClass import File
 from DirectoryClass import Directory
 from MainMemory import MainMemory
-
+from fiestel_cipher import feistel_encryption, feistel_decryption
+from hashing import hash_data
+import json
 
 class FileManagementSystem:
     def __init__(self):
@@ -72,9 +74,17 @@ class FileManagementSystem:
         try:
             file = self.files[name]
             if file.file_size == 0:
-                file.write(data, self.Memory)
+                json_data = '{ "text" : "' + data + '", "hash" : ' + json.dumps(hash_data(data)) + ' }'
+                encrypted_data = feistel_encryption(json_data)
+                file.write(encrypted_data, self.Memory)
             else:
-                file.append(data, self.Memory)
+                file_data = feistel_decryption(self.readFile(name))
+                json_data = json.loads(file_data)
+                json_data["text"] += " " + data
+                json_data["hash"] = hash_data(json_data["text"])
+                json_string = '{ "text" : "' + json_data["text"] + '", "hash" : ' + json.dumps(json_data["hash"]) + ' }'
+                encrypted_data = feistel_encryption(json_string)
+                file.write(encrypted_data, self.Memory)
         except KeyError:
             print("The current directory has no such file")
         except:
@@ -87,9 +97,12 @@ class FileManagementSystem:
         try:
             current_directory = self.current_directory
             my_file = current_directory.find_file(name)
-            my_file.write(data, self.Memory)
+            json_data = '{ "text" : "' + data + '", "hash" : ' + json.dumps(hash_data(data)) + ' }'
+            encrypted_data = feistel_encryption(json_data)
+            my_file.write(encrypted_data, self.Memory)
             return my_file
-        except:
+        except Exception as e:
+            print(e)
             print("The current directory has no such file")
 
     def truncate_file(self, name, size):
@@ -268,7 +281,7 @@ class FileManagementSystem:
 
             # Change Directory: cd <dirname>
             elif command == "cd":
-                self.change_directory(prompt[1])
+                if len(prompt) > 1 : self.change_directory(prompt[1])
                 pass
 
             # Create a directory (add to the current directory): mkdir <dirname>
@@ -301,14 +314,18 @@ class FileManagementSystem:
             elif command == "wr":
                 written_text = ""
                 for i in range(2, len(prompt)):
-                    written_text += prompt[i] + ""
+                    written_text += prompt[i]
+                    if i < len(prompt)-1:
+                        written_text += " "
                 self.write_file(prompt[1], written_text)
 
             # Append to a file (add to the end): ap <filename> <text>
             elif command == "ap":
                 appended_text = ""
                 for i in range(2, len(prompt)):
-                    appended_text += prompt[i] + ""
+                    appended_text += prompt[i]
+                    if i < len(prompt)-1:
+                        appended_text += " "
                 self.append_file(prompt[1], appended_text)
 
             # Truncate a file (remove content): tr <filename> <end bit>
@@ -334,9 +351,16 @@ class FileManagementSystem:
             elif command == "cat":
                 try:
                     if self.readFile(prompt[1]) != None:
-                        print(self.readFile(prompt[1]))
+                        file_data = json.loads(feistel_decryption(self.readFile(prompt[1])))
+                        re_hash = hash_data(file_data["text"])
+                        load_hash = file_data["hash"]
+                        if re_hash == load_hash:
+                            print(file_data["text"])
+                        else:
+                            print("The file has been corrupted")
 
-                except:
+                except Exception as e:
+                    print(e)
                     print("Please enter prompts correctly")
 
                 pass

@@ -34,28 +34,28 @@ class File:
                 self.pointer += 64
                 size -= 64
 
-    def append(self, data, MainMemory):
-        size = len(data)
-        current_pointer = 0
-        self.file_size += size
-        last_block = self.blocks[-1]
-        if MainMemory.space_left_in_a_block(last_block) >= 0:
-            space_left = MainMemory.space_left_in_a_block(last_block)
-            MainMemory.blocks[last_block] += data[0:
-                                                  space_left]
-            current_pointer += space_left
-        blockes_needed = (size - current_pointer) // 64
-        for i in range(blockes_needed + 1):
-            block = MainMemory.allocate_block(self)
-            self.blocks.append(block)
-            MainMemory.blocks[block] = data[current_pointer:current_pointer + 64]
-            if size < 64:
-                current_pointer += size
-                size = 0
-            else:
-                current_pointer += 64
-                size -= 64
-        self.pointer += current_pointer
+    # def append(self, data, MainMemory):
+    #     size = len(data)
+    #     current_pointer = 0
+    #     self.file_size += size
+    #     last_block = self.blocks[-1]
+    #     if MainMemory.space_left_in_a_block(last_block) >= 0:
+    #         space_left = MainMemory.space_left_in_a_block(last_block)
+    #         MainMemory.blocks[last_block] += data[0:
+    #                                               space_left]
+    #         current_pointer += space_left
+    #     blockes_needed = (size - current_pointer) // 64
+    #     for i in range(blockes_needed + 1):
+    #         block = MainMemory.allocate_block(self)
+    #         self.blocks.append(block)
+    #         MainMemory.blocks[block] = data[current_pointer:current_pointer + 64]
+    #         if size < 64:
+    #             current_pointer += size
+    #             size = 0
+    #         else:
+    #             current_pointer += 64
+    #             size -= 64
+    #     self.pointer += current_pointer
 
     def moveContentWithinFile(self, MainMemory, start, size, new_start):
         my_blocks = self.blocks.copy()
@@ -93,10 +93,14 @@ class File:
         MainMemory.free_blocks(my_blocks)
 
     def read(self, MainMemory):
-        data = ""
-        for block in self.blocks:
-            data += MainMemory.blocks[block]
-        return data
+        try:
+            data = ""
+            for block in self.blocks:
+                data += MainMemory.blocks[block]
+            return data
+        except Exception as e:
+            print("Exception here")
+            print(e)
 
     def isDirectory(self):
         return False
