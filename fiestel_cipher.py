@@ -81,7 +81,7 @@ def binary_to_dec(binary):
         dec += 2**(len(binary)-i-1)*int(binary[i])
     return dec
 
-subkeys = [
+example_key = [
     '11010010', '01101100', '00110111', '10011001', '00011101', '10100000', '10100011', '00011100', 
     '00111010', '00100101', '10011110', '10110010', '11000101', '11111001', '10111011', '01110111', 
     '10001010', '11111110', '11011111', '11111011', '11110000', '01110010', '00110010', '11001011', 
@@ -114,7 +114,7 @@ subkeys = [
     '00111100', '00011010', '01001000', '10101011', '00000101', '01011010', '11101010', '10100100', 
     '11100001', '00001100', '00000111', '00100010', '10000000', '00111111', '10110101', '11011001', 
     '11100101', '01010100', '10110100', '00010100', '01111101', '11100000', '00110101', '00000011'
-    ]  
+    ]
 
 
 def f_function(right, key):
@@ -150,7 +150,9 @@ def swap(left, right, key):
     xor_text = xor_function(left, substituted)
     return right, xor_text
 
-def feistel_encryption(plain_text):
+def feistel_encryption(plain_text, key):
+    chunk_size = 8
+    subkeys = [key[i:i+chunk_size] for i in range(0, len(key), chunk_size)]
     bits = convert_text_to_bits(plain_text)
     left = bits[0:int(len(bits)/2)]
     right = bits[int(len(bits)/2):len(bits)]
@@ -159,7 +161,9 @@ def feistel_encryption(plain_text):
     cipher_text = convert_bits_to_text(right+""+left)
     return cipher_text
 
-def feistel_decryption(cipher_text):
+def feistel_decryption(cipher_text, key):
+    chunk_size = 8
+    subkeys = [key[i:i+chunk_size] for i in range(0, len(key), chunk_size)]
     bits = convert_text_to_bits(cipher_text)
     left = bits[0:int(len(bits)/2)]
     right = bits[int(len(bits)/2):len(bits)]
@@ -184,8 +188,9 @@ def convert_bits_to_text(bits):
 
 if __name__ == "__main__":
     plain_text = input("Enter Some Text: ")
-    cipher_text = feistel_encryption(plain_text)
-    text_back = feistel_decryption(cipher_text)
+    e_key = "".join(example_key)
+    cipher_text = feistel_encryption(plain_text, e_key)
+    text_back = feistel_decryption(cipher_text, e_key)
     print("The Text: ", plain_text)
     print("The Cipher Text: ", cipher_text.encode('latin1').decode('unicode_escape'))
     print("The Text we get back: ", text_back)

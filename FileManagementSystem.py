@@ -8,9 +8,11 @@ from hashing import hash_data
 import json
 
 class FileManagementSystem:
-    def __init__(self):
+    def __init__(self, username, encryption_key):
         self.root = Directory("root")
         self.current_directory = self.root
+        self.user = username
+        self.encryption_key = encryption_key
         self.files = {}
         self.Memory = MainMemory()
         self.subdirectories = {}
@@ -75,15 +77,15 @@ class FileManagementSystem:
             file = self.files[name]
             if file.file_size == 0:
                 json_data = '{ "text" : "' + data + '", "hash" : ' + json.dumps(hash_data(data)) + ' }'
-                encrypted_data = feistel_encryption(json_data)
+                encrypted_data = feistel_encryption(json_data, self.encryption_key)
                 file.write(encrypted_data, self.Memory)
             else:
-                file_data = feistel_decryption(self.readFile(name))
+                file_data = feistel_decryption(self.readFile(name), self.encryption_key)
                 json_data = json.loads(file_data)
                 json_data["text"] += " " + data
                 json_data["hash"] = hash_data(json_data["text"])
                 json_string = '{ "text" : "' + json_data["text"] + '", "hash" : ' + json.dumps(json_data["hash"]) + ' }'
-                encrypted_data = feistel_encryption(json_string)
+                encrypted_data = feistel_encryption(json_string, self.encryption_key)
                 file.write(encrypted_data, self.Memory)
         except KeyError:
             print("The current directory has no such file")
@@ -98,7 +100,7 @@ class FileManagementSystem:
             current_directory = self.current_directory
             my_file = current_directory.find_file(name)
             json_data = '{ "text" : "' + data + '", "hash" : ' + json.dumps(hash_data(data)) + ' }'
-            encrypted_data = feistel_encryption(json_data)
+            encrypted_data = feistel_encryption(json_data, self.encryption_key)
             my_file.write(encrypted_data, self.Memory)
             return my_file
         except Exception as e:
@@ -219,11 +221,13 @@ class FileManagementSystem:
             self.MemoryMap(directory)
 
     def save(self):
-        with open("file_system.pickle", "wb") as file:
+        user_file = os.path.join("users", f"{self.user}.pickle")  
+        with open(user_file, "wb") as file:
             pickle.dump(self, file)
 
     def load(self):
-        with open("file_system.pickle", "rb") as file:
+        user_file = os.path.join("users", f"{self.user}.pickle")  
+        with open(user_file, "rb") as file:
             return pickle.load(file)
 
     def listAll(self):
@@ -351,7 +355,7 @@ class FileManagementSystem:
             elif command == "cat":
                 try:
                     if self.readFile(prompt[1]) != None:
-                        file_data = json.loads(feistel_decryption(self.readFile(prompt[1])))
+                        file_data = json.loads(feistel_decryption(self.readFile(prompt[1]), self.encryption_key))
                         re_hash = hash_data(file_data["text"])
                         load_hash = file_data["hash"]
                         if re_hash == load_hash:

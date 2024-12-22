@@ -1,8 +1,24 @@
 import math
 
-prevents = [0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 27, 32, 95, 127, 128, 129, 130, 131, 132, 133, 134,
-          135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152,
-          153, 154, 155, 156, 157, 158, 159, 160, 173]
+
+def find_closest(num):
+    if num < 49:
+        unit = num%10
+        if unit == 8:
+            return 98
+        if unit < 8:
+            return 50 + unit
+        return 40 + unit
+    elif num>57 and num != 61 and num<97:
+        unit = num%10
+        if unit < 4:
+            return 110 + unit
+        if unit < 8:
+            return 50 + unit
+        return 90 + unit
+    elif num > 122:
+        unit = num%10
+        return 110 + unit
 
 
 def hash_data(plain_text):
@@ -64,9 +80,9 @@ def hash_data(plain_text):
         mega_char = ((abs(int(char_1 * 100)) * abs(int(char_2 * 100))) + (abs(int(char_3 * 100)) *
                     abs(int(char_4 * 100))) + (abs(int(char_5 * 100)) * abs(int(char_6 * 100)))
     )
-        bounded_mega_char = mega_char%256
-        if bounded_mega_char in prevents:
-            bounded_mega_char += 66
+        bounded_mega_char = mega_char%128
+        if (49>bounded_mega_char) or (57<bounded_mega_char<97 and bounded_mega_char!=61) or (bounded_mega_char>122):
+            bounded_mega_char = find_closest(bounded_mega_char)
 
         hash_string += chr(bounded_mega_char)
 
@@ -77,7 +93,7 @@ if __name__=="__main__":
     # plain_text = "In today’s fast-paced digital world, technology is constantly evolving, shaping every aspect of our lives. From the way we communicate to the way we work and even how we entertain ourselves, technological advancements have made a significant impact. Artificial intelligence, for instance, has revolutionized industries ranging from healthcare to finance, providing innovative solutions to long-standing challenges. The internet of things (IoT) is connecting everyday objects, making them smarter and more efficient. As we move further into the 21st century, it's clear that the future of technology holds even more transformative potential, and it will be exciting to see how it continues to shape our world in the years to come."
     # print(hash_data(plain_text))
     plain_text_1 = "Ahmed Zafar"
-    plain_text_2 = "Abdul Arham"
+    plain_text_2 = "Ahmed Zafar."
     hash_1 = hash_data(plain_text_1)
     hash_2 = hash_data(plain_text_2)
     print(plain_text_1)
