@@ -72,6 +72,7 @@ class FileManagementSystem:
         except:
             print("directory not found")
 
+    # Done
     def append_file(self, name, data):
         try:
             file = self.files[name]
@@ -95,6 +96,7 @@ class FileManagementSystem:
     def print_used_blocks(self):
         self.Memory.print_blocks()
 
+    # Done
     def write_file(self, name, data):
         try:
             current_directory = self.current_directory
@@ -117,6 +119,7 @@ class FileManagementSystem:
         except:
             print("Something went wrong")
 
+    # Done
     def readFile(self, name):
         try:
             current_directory = self.current_directory
@@ -297,6 +300,7 @@ class FileManagementSystem:
                 self.print_used_blocks()
 
                 # Delete a directory (remove from the current directory): rmdir <dirname>
+            
             elif command == "rmdir":
                 try:
                     self.delete_directory(prompt[1])
@@ -361,7 +365,8 @@ class FileManagementSystem:
                         if re_hash == load_hash:
                             print(file_data["text"])
                         else:
-                            print("The file has been corrupted")
+                            # TODO : Raise Error for file corruption
+                            print("Error: The file has been corrupted")
 
                 except Exception as e:
                     print(e)

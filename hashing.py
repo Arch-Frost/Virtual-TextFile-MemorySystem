@@ -63,8 +63,8 @@ def hash_data(plain_text):
             char_6 = char_2 + 2 * char_1
 
         mega_char = ((abs(int(char_1 * 100)) * abs(int(char_2 * 100))) + (abs(int(char_3 * 100)) *
-                    abs(int(char_4 * 100))) + (abs(int(char_5 * 100)) * abs(int(char_6 * 100)))
-    )
+                    abs(int(char_4 * 100))) + (abs(int(char_5 * 100)) * abs(int(char_6 * 100))))
+        
         bounded_mega_char = mega_char%256
         if bounded_mega_char in prevents:
             bounded_mega_char += 66

@@ -4,6 +4,9 @@ import pickle
 from hashing import hash_data
 
 class UserSystem:
+    '''
+    Authentication system that allows users to create accounts and login.
+    '''
     def __init__(self, users_folder="users", credentials_file="credentials.pickle"):
         self.users_folder = users_folder
         self.credentials_file = credentials_file
@@ -26,7 +29,7 @@ class UserSystem:
     def create_user(self, username, password):
         # Check if the user already exists in the credentials
         if username in self.credentials_data:
-            print("User already exists.")
+            print("Username already exists. Please choose a different username.")
             return False
 
         # Generate the user's encryption key and hash the password

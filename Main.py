@@ -10,8 +10,8 @@ def login_system():
         choice = input("Enter your choice: ")
 
         if choice == "1":
-            username = input("Enter username: ")
-            password = input("Enter password: ")
+            username = input("Choose a unique username: ")
+            password = input("Choose a password: ")
             user_system.create_user(username, password)
 
         elif choice == "2":
